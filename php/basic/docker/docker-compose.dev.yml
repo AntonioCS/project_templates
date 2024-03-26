@@ -1,0 +1,22 @@
+services:
+  app:
+    build:
+      target: app_dev
+    volumes:
+      - '../:/app'
+      - './services/app/shared/dev/cond.d:/usr/local/etc/php/conf.d'
+    extra_hosts: # required for linux machines to run Xdebug
+      - host.docker.internal:host-gateway
+    networks:
+      - app-local-network
+
+  app_nginx :
+    ports:
+      - "80:80"
+    volumes:
+      - './services/nginx/shared/dev/conf.d:/etc/nginx/conf.d'
+    networks:
+      - app-local-network
+
+networks:
+  app-local-network:

@@ -1,0 +1,17 @@
+services:
+  app:
+    build:
+      context: ./services/app
+    networks:
+      - app-local-network
+
+  app_nginx:
+    image: nginx:latest
+    container_name: app_nginx
+    depends_on:
+      - app
+    networks:
+      - app-local-network
+
+networks:
+  app-local-network:
