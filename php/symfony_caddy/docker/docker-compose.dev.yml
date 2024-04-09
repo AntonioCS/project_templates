@@ -1,20 +1,28 @@
 services:
   app:
+    container_name: app_dev
     build:
       target: app_dev
     volumes:
-      - '../:/app'
+      - '../project/:/app'
       - './services/app/shared/dev/conf.d:/usr/local/etc/php/conf.d'
     extra_hosts: # required for linux machines to run Xdebug
       - host.docker.internal:host-gateway
+    environment:
+      - APP_ENV=dev
+      - APP_DEBUG=1
+      - APP_SECRET=secret
     networks:
       - app-local-network
 
-  app_nginx :
+  app_caddy:
+    container_name: app_dev_caddy
     ports:
       - "80:80"
+      - "443:443"
     volumes:
-      - './services/nginx/shared/dev/conf.d:/etc/nginx/conf.d'
+      - '../project/public:/app/public'
+      - './services/caddy/shared/dev/caddy/Caddyfile:/etc/caddy/Caddyfile'
     networks:
       - app-local-network
 

@@ -1,0 +1,9 @@
+services:
+  app:
+    build:
+      context: ./services/app
+
+  app_nginx:
+    image: nginx:latest
+    depends_on:
+      - app

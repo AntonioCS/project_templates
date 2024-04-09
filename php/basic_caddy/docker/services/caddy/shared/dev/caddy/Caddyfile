@@ -1,0 +1,19 @@
+# /etc/caddy/Caddyfile
+localhost {
+    root * /app/public
+    try_files {path} /index.html /index.php?{query}
+    # serve files directly if they can be found (e.g. CSS or JS files in public/)
+    encode zstd gzip
+    file_server
+    php_fastcgi app:9000
+
+    # Access logs
+    log {
+        output file /var/log/caddy/access.log {
+            roll_size 100mb
+            roll_keep 7
+            roll_keep_for 720h
+        }
+        format json
+    }
+}

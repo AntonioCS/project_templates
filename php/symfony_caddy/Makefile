@@ -38,21 +38,21 @@ dc-logs:
 ## By default in the caddy container /var/log/caddy/error.log and /var/log/caddy/access.log
 ## are symlinks to /dev/stderr and /dev/stdout respectively, so this won't output anything, use this if you
 ## have changed the default configuration.
-nginx_error_log := /var/log/nginx/error.log
-nginx_access_log := /var/log/nginx/access.log
-service_nginx := app_nginx
+caddy_error_log := /var/log/caddy/error.log
+caddy_access_log := /var/log/caddy/access.log
+service_caddy := app_caddy
 
-nginx-tail-error-log:
-	docker compose $(dfiles) exec $(service_nginx) tail -f $(nginx_error_log) || true
+caddy-tail-error-log:
+	docker compose $(dfiles) exec $(service_caddy) tail -f $(caddy_error_log) || true
 
-nginx-tail-access-log:
-	docker compose $(dfiles) exec $(service_nginx) tail -f $(nginx_access_log) || true
+caddy-tail-access-log:
+	docker compose $(dfiles) exec $(service_caddy) tail -f $(caddy_access_log) || true
 
-nginx-tail-dc-logs:
-	docker compose $(dfiles) logs -f $(service_nginx)
+caddy-tail-dc-logs:
+	docker compose $(dfiles) logs -f $(service_caddy)
 
-nginx-shell:
-	docker compose $(dfiles) exec $(service_nginx) sh
+caddy-shell:
+	docker compose $(dfiles) exec $(service_caddy) sh
 
 
 php-composer-install:

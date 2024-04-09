@@ -1,5 +1,6 @@
 services:
   app:
+    container_name: app_dev
     build:
       target: app_dev
     volumes:
@@ -10,11 +11,13 @@ services:
     networks:
       - app-local-network
 
-  app_nginx :
+  app_caddy:
+    container_name: app_dev_caddy
     ports:
       - "80:80"
+      - "443:443"
     volumes:
-      - './services/nginx/shared/dev/conf.d:/etc/nginx/conf.d'
+      - './services/caddy/shared/dev/caddy/Caddyfile:/etc/caddy/Caddyfile'
     networks:
       - app-local-network
 

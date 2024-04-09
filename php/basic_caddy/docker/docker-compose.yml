@@ -1,0 +1,9 @@
+services:
+  app:
+    build:
+      context: ./services/app
+
+  app_caddy:
+    image: caddy:2.7-alpine
+    depends_on:
+      - app
