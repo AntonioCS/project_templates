@@ -30,6 +30,7 @@ ENV COMPOSER_ALLOW_SUPERUSER=1
 COPY --from=composer:latest /usr/bin/composer /usr/bin/
 RUN apk add --update \
       linux-headers \
+      bash \
       git
 RUN mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"
 RUN pecl install \

@@ -1,62 +1,35 @@
+mb_project_path := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
+mb_clone_mb_if_not_found ?= 1
+mb_mb_default_path ?= $(abspath $(mb_project_path)/../../make/MakeBind)
+mb_git_clone_path ?= $(dir $(mb_mb_default_path))
+mb_main_mk ?= $(mb_mb_default_path)/main.mk
+mb_default_repo_ssh ?= git@github.com:AntonioCS/MakeBind.git
+mb_silent_mode ?= 0
 
-docker_compose_file := docker/docker-compose.yml
-docker_compose_file_dev := docker/docker-compose.dev.yml
-dfiles := --file $(docker_compose_file) --file $(docker_compose_file_dev)
-
-dc-start:
-	docker compose $(dfiles) up -d
-#	MY_UID=$$(id -u) MY_GID=$$(id -g)
-
-dc-stop:
-	docker compose $(dfiles) stop
-
-dc-down:
-	docker compose $(dfiles) down
-
-php-shell:
-	docker compose $(dfiles) exec app sh
-
-dc-restart: dc-stop
-dc-restart: dc-start
-
-dc-build:
-	docker compose $(dfiles) build --parallel --no-cache \
-		--build-arg USER_ID=$(shell id -u) \
-		--build-arg USER_NAME=$(shell whoami) \
-		--build-arg GROUP_ID=$(shell id -g)
-
-dc-rebuild: dc-stop
-dc-rebuild: dc-build
-dc-rebuild: dc-start
-
-dc-status:
-	docker compose $(dfiles) ps
-
-dc-logs:
-	docker compose $(dfiles) logs -f
-
-## By default in the caddy container /var/log/caddy/error.log and /var/log/caddy/access.log
-## are symlinks to /dev/stderr and /dev/stdout respectively, so this won't output anything, use this if you
-## have changed the default configuration.
-nginx_error_log := /var/log/nginx/error.log
-nginx_access_log := /var/log/nginx/access.log
-service_nginx := app_nginx
-
-nginx-tail-error-log:
-	docker compose $(dfiles) exec $(service_nginx) tail -f $(nginx_error_log) || true
-
-nginx-tail-access-log:
-	docker compose $(dfiles) exec $(service_nginx) tail -f $(nginx_access_log) || true
-
-nginx-tail-dc-logs:
-	docker compose $(dfiles) logs -f $(service_nginx)
-
-nginx-shell:
-	docker compose $(dfiles) exec $(service_nginx) sh
+ifeq ($(if $(value mb_debug),$(mb_debug),0),1)
+$(info mb_project_path: $(mb_project_path))
+$(info mb_clone_mb_if_not_found: $(mb_clone_mb_if_not_found))
+$(info mb_mb_default_path: $(mb_mb_default_path))
+$(info mb_git_clone_path: $(mb_git_clone_path))
+$(info mb_main_mk: $(mb_main_mk))
+$(info mb_default_repo_ssh: $(mb_default_repo_ssh))
+$(info mb_silent_mode: $(mb_silent_mode))
+endif
 
 
-php-composer-install:
-	docker compose $(dfiles) run --rm app composer install
+## The MakeBind project exists and there is a symlink
+ifneq ($(wildcard $(mb_main_mk)),)
+include $(mb_main_mk)
+else
+#### make was called with a target that doesn't exist probably because there is no MakeBind in the project
+%:
+	@$(MAKE) -s mb_clone_and_rerun mb_invoked_with_target=$*
 
-setup: dc-rebuild
-setup: php-composer-install
+##### MakeBind is not present in the project, clone it and rerun the make command
+mb_clone_and_rerun:
+ifndef mb_silent_mode
+	$(info MakeBind being cloned from $(mb_default_repo_ssh) to $(mb_mb_default_path))
+endif
+	$(info @git clone $(mb_default_repo_ssh) $(mb_git_clone_path))
+	$(info @$(MAKE) -s $(if $(value mb_invoked_with_target),$(mb_invoked_with_target)))
+endif

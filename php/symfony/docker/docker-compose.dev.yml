@@ -1,3 +1,5 @@
+name: symfony-dev
+
 services:
   app:
     container_name: app_dev
@@ -15,14 +17,20 @@ services:
     networks:
       - app-local-network
 
-  app_nginx :
+  app_nginx:
+    image: nginx:latest
+    depends_on:
+      - app
     container_name: app_dev_nginx
     ports:
       - "80:80"
+      - "443:443"
     volumes:
-      - './services/caddy/shared/dev/conf.d:/etc/caddy/conf.d'
+      - '../project:/app' ## Ensure nginx has access to the main directory
+      - './services/nginx/shared/dev/conf.d:/etc/nginx/conf.d'
     networks:
       - app-local-network
 
 networks:
   app-local-network:
+    driver: bridge
