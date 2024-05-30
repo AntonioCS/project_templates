@@ -23,8 +23,8 @@ services:
       - app
     container_name: app_dev_nginx
     ports:
-      - "80:80"
-      - "443:443"
+      - "${SYMFONY_NGINX_HOST_PORT_HTTP:-80}:80"
+      - "${SYMFONY_NGINX_HOST_PORT_HTTPS:-443}:443"
     volumes:
       - '../project:/app' ## Ensure nginx has access to the main directory
       - './services/nginx/shared/dev/conf.d:/etc/nginx/conf.d'
