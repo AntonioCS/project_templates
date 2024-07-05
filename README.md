@@ -1,2 +1,2 @@
-# php_templates
-Templates for php projects
+# Project templates
+Templates for various projects types
