@@ -1,0 +1,5 @@
+project/node_modules
+.DS_Store
+project/dist
+project/dist-ssr
+project/*.local

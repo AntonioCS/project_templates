@@ -1,0 +1,4 @@
+services:
+  app_react:
+    build:
+      context: ./services/app

@@ -1,0 +1,17 @@
+services:
+  app_react:
+    build:
+      target: app_react_dev
+    volumes:
+      - '../project:/app'
+    networks:
+      - app-local-network
+    ports:
+      - '5173:5173' ## Dev server
+      - '3000:3000'
+    environment:
+      - NODE_ENV=development
+    command: sh -c "if [ ! -d node_modules ]; then npm install; fi && npm run dev -- --host"
+
+networks:
+  app-local-network:
