@@ -10,15 +10,16 @@ RUN apk update && \
 		autoconf && \
  	apk add --no-cache \
     	--virtual .phpize-deps ${PHPIZE_DEPS}
-RUN	pecl install -o -f  \
-    	ds && \
+RUN	pecl channel-update pecl.php.net && \
+#    pecl install -o -f  \
+#    	ds && \
     docker-php-ext-install \
     	pcntl \
     	posix \
     	bcmath && \
  	docker-php-ext-enable \
-    	opcache \
-    	ds
+    	opcache
+#ds
 
 FROM base AS app_dev
 ARG USER_ID=1000

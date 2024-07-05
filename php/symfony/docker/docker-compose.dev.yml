@@ -2,12 +2,13 @@ name: symfony-dev
 
 services:
   app:
-    container_name: app_dev
+    container_name: app_dev_sy
     build:
       target: app_dev
     volumes:
       - '../project:/app'
-      - './services/app/shared/dev/conf.d:/usr/local/etc/php/conf.d'
+      - './services/app/shared/dev/conf.d/app.ini:/usr/local/etc/php/conf.d/app.ini'
+      - './services/app/shared/dev/conf.d/xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini'
     extra_hosts: # required for linux machines to run Xdebug
       - host.docker.internal:host-gateway
     environment:
@@ -21,7 +22,7 @@ services:
     image: nginx:latest
     depends_on:
       - app
-    container_name: app_dev_nginx
+    container_name: app_dev_nginx_sy
     ports:
       - "${SYMFONY_NGINX_HOST_PORT_HTTP:-80}:80"
       - "${SYMFONY_NGINX_HOST_PORT_HTTPS:-443}:443"
