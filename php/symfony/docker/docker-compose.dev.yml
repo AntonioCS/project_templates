@@ -15,6 +15,8 @@ services:
       - APP_ENV=dev
       - APP_DEBUG=1
       - APP_SECRET=secret
+      #https://www.jetbrains.com/help/phpstorm/debugging-a-php-cli-script.html
+      - PHP_IDE_CONFIG=serverName=<name of the server configured on the PHP | Servers page of the Settings dialog>
     networks:
       - app-local-network
 
