@@ -2,11 +2,11 @@ name: symfony-dev
 
 services:
   app:
-    container_name: app_dev_sy
+    container_name: app_sy_dev
     build:
       target: app_dev
     volumes:
-      - '../project:/app'
+      - '../%_PROJECT_NAME_%:/app'
       - './services/app/shared/dev/conf.d/app.ini:/usr/local/etc/php/conf.d/app.ini'
       - './services/app/shared/dev/conf.d/xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini'
     extra_hosts: # required for linux machines to run Xdebug
@@ -16,9 +16,24 @@ services:
       - APP_DEBUG=1
       - APP_SECRET=secret
       #https://www.jetbrains.com/help/phpstorm/debugging-a-php-cli-script.html
-      - PHP_IDE_CONFIG=serverName=<name of the server configured on the PHP | Servers page of the Settings dialog>
+      # <name of the server configured on the PHP | Servers page of the Settings dialog>
+      - PHP_IDE_CONFIG=serverName=%_PHP_IDE_CONFIG_SERVER_NAME_% # This should match the server name in your PHPStorm configuration
     networks:
-      - app-local-network
+      - app-local-%_PROJECT_NAME_%-network
+
+  app_db:
+    image: postgres:16.2-alpine
+    container_name: app_db
+    environment:
+      POSTGRES_USER: %_POSTGRES_USER_%
+      POSTGRES_PASSWORD: %_POSTGRES_PASSWORD_%
+      POSTGRES_DB: %_POSTGRES_DB_% # This should match the database name in your Symfony .env file
+    volumes:
+      - app_db_data:/var/lib/postgresql/data
+    ports:
+      - "${SYMFONY_DB_HOST_PORT:-5432}:5432"
+    networks:
+      - app-local-%_PROJECT_NAME_%-network
 
   app_nginx:
     image: nginx:latest
@@ -26,14 +41,28 @@ services:
       - app
     container_name: app_dev_nginx_sy
     ports:
-      - "${SYMFONY_NGINX_HOST_PORT_HTTP:-80}:80"
-      - "${SYMFONY_NGINX_HOST_PORT_HTTPS:-443}:443"
+      - "${SYMFONY_NGINX_HOST_HTTP_PORT:-80}:80"
+      - "${SYMFONY_NGINX_HOST_HTTPS_PORT:-443}:443"
     volumes:
-      - '../project:/app' ## Ensure nginx has access to the main directory
+      - '../%_PROJECT_NAME_%:/app' ## Ensure nginx has access to the main directory
       - './services/nginx/shared/dev/conf.d:/etc/nginx/conf.d'
     networks:
-      - app-local-network
+      - app-local-%_PROJECT_NAME_%-network
+
+  app_cache:
+    image: redis:7.2-alpine
+    container_name: app_cache
+    ports:
+      - "${SYMFONY_CACHE_HOST_PORT:-6379}:6379"
+    volumes:
+      - app_redis_data:/data
+    networks:
+      - app-local-%_PROJECT_NAME_%-network
+
+volumes:
+  app_db_data:
+  app_redis_data:
 
 networks:
-  app-local-network:
+  app-local-%_PROJECT_NAME_%-network:
     driver: bridge
