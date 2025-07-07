@@ -5,6 +5,8 @@ services:
     container_name: app_sy_dev
     build:
       target: app_dev
+      context: ../ # Ensure this resolves to the root of your project
+      dockerfile: ./docker/services/app/Dockerfile
     volumes:
       - '../%_PROJECT_NAME_%:/app'
       - './services/app/shared/dev/conf.d/app.ini:/usr/local/etc/php/conf.d/app.ini'

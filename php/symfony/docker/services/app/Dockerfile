@@ -28,12 +28,13 @@ ENV COMPOSER_ALLOW_SUPERUSER=1
 ENV APP_ENV=prod
 ENV APP_DEBUG=0
 COPY --from=composer:latest /usr/bin/composer /usr/bin/
-COPY composer.json composer.lock ./
-RUN composer install --no-dev --optimize-autoloader --no-interaction
+COPY ./%_PROJECT_NAME_%/composer.json ./project/composer.lock ./
+## Prevent symfony script from running with --no-scripts
+RUN composer install --no-dev --optimize-autoloader --no-interaction --no-scripts
 
 FROM base AS app_prod
 COPY --from=build_vendor /app/vendor /app/vendor
-COPY ../ .
+COPY ./%_PROJECT_NAME_%/ .
 RUN php bin/console cache:clear --env=prod --no-debug && \
     php bin/console cache:warmup --env=prod --no-debug
 
@@ -42,7 +43,7 @@ ENV COMPOSER_ALLOW_SUPERUSER=1
 COPY --from=composer:latest /usr/bin/composer /usr/bin/
 RUN composer install --no-interaction
 # Optional: copy phpunit config if you don’t commit it
-COPY phpunit.xml.dist ./
+#COPY ./project/phpunit.xml.dist ./
 
 
 FROM app_prod AS app_dev
